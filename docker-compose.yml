@@ -1,0 +1,32 @@
+version: '3.8'  # Version of Docker Compose
+
+services:
+  mysql_db:
+    container_name: mysql  # Container name for MySQL
+    image: mysql:8.0  # Use the official MySQL image
+    environment:
+      MYSQL_ROOT_PASSWORD: "Test@123"  # Set the root password for MySQL
+      MYSQL_DATABASE: "expenses_tracker"  # Database name
+    ports:
+      - "3306:3306"  # Expose port 3306 to access MySQL
+    volumes:
+      - mysql_data:/var/lib/mysql  # Mount volume to persist MySQL data
+    restart: always  # Restart MySQL if it crashes
+
+  java_app:
+    container_name: expensesapp  # Container name for the Java app
+    build:  # Build the Docker image for the Java application
+      context: .  # Use the current directory for the Dockerfile
+    ports:
+      - "8084:8080"  # Expose port 8080 for the Java app
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/expenses_tracker?allowPublicKeyRetrieval=true&useSSL=false"
+      SPRING_DATASOURCE_USERNAME: root  # Database username
+      SPRING_DATASOURCE_PASSWORD: "Test@123"  # Database password
+    depends_on:
+      - mysql_db  # Ensure the Java app starts after MySQL
+    restart: always  # Restart the Java app if it crashes
+
+volumes:
+  mysql_data:  # Define a volume to store MySQL data
+
